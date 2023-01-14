@@ -2,21 +2,34 @@ package main
 
 import (
 	"fmt"
-	"net"
+	"os"
+	"time"
 )
 
 func main() {
-	addrs, err := net.InterfaceAddrs()
+	ipv6Addresses, err := GetPublicIpv6()
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("Get Ipv6 addresses failed", err)
 		return
 	}
-	for _, address := range addrs {
-		// 检查ip地址判断是否回环地址
-		if ipnet, ok := address.(*net.IPNet); ok && !ipnet.IP.IsLoopback() && ipnet.IP.To4() == nil {
-			if !ipnet.IP.IsLinkLocalUnicast() {
-				fmt.Println(ipnet.IP.String())
-			}
-		}
+
+	ipv6 := ipv6Addresses[0]
+	fmt.Println(ipv6.IP)
+
+	configFileName := os.Args[1]
+
+	config, file := ReadConfig(configFileName)
+
+	config.LastIP = ipv6.IP.String()
+	config.Token = "test"
+	config.ExpireAt = time.Now().Unix()
+
+	fmt.Println(file.Name())
+	fmt.Println(config)
+
+	err = WriteConfig(file, config)
+	if err != nil {
+		fmt.Println("Write Config failed", err)
+		return
 	}
 }
