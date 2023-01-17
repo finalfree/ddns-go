@@ -23,7 +23,7 @@ type Text struct {
 	Content string `json:"content"`
 }
 
-func Get_Token(config *Config) (*GetTokenResponse, error) {
+func Get_Token(config *WechatConfig) (*GetTokenResponse, error) {
 	url := "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=" + config.CorpID + "&corpsecret=" + config.AppSecret
 	resp, err := http.Get(url)
 	if err != nil {

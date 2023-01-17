@@ -7,7 +7,21 @@ import (
 	"path/filepath"
 )
 
-type Config struct {
+type AppConfig struct {
+	WechatConfig WechatConfig `yaml:"wechat"`
+	AlidnsConfig AlidnsConfig `yaml:"alidns"`
+}
+
+type AlidnsConfig struct {
+	Domain          string `yaml:"domain"`
+	RecordId        string `yaml:"record_id"`
+	RecordType      string `yaml:"record_type"`
+	RR              string `yaml:"rr"`
+	AccessKeyId     string `yaml:"access_key_id"`
+	AccessKeySecret string `yaml:"access_secret"`
+}
+
+type WechatConfig struct {
 	CorpID    string `yaml:"corp_id"`
 	AppSecret string `yaml:"app_secret"`
 	AgentID   int    `yaml:"agent_id"`
@@ -17,10 +31,9 @@ type Config struct {
 type TempConfig struct {
 	Token    string `yaml:"token"`
 	ExpireAt int64  `yaml:"expire_at"`
-	LastIP   string `yaml:"last_ip"`
 }
 
-func ReadConfig(fileName string) *Config {
+func ReadConfig(fileName string) *AppConfig {
 	file, err := os.Open(fileName)
 	if err != nil {
 		fmt.Println(err)
@@ -28,7 +41,7 @@ func ReadConfig(fileName string) *Config {
 	defer file.Close()
 	// read yaml config from file
 	decoder := yaml.NewDecoder(file)
-	var config Config
+	var config AppConfig
 	err = decoder.Decode(&config)
 	if err != nil {
 		fmt.Println(err)

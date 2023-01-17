@@ -1,4 +1,1 @@
-CGO_ENABLED=0
-GOOS=linux
-GOARCH=amd64
-go build -o ./output/ddns-go .
+CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ./output/ddns-go .

@@ -22,46 +22,38 @@ func main() {
 	tempConfig, file := ReadTempConfig(tempFileName)
 	defer file.Close()
 
-	configChanged := false
-
-	var message Message
 	config := ReadConfig(configFileName)
-	message.ToUser = config.ToUser
-	message.AgentID = config.AgentID
-	message.MsgType = "text"
+	updated, err := UpdateDomain(&config.AlidnsConfig, &ipv6)
+	if err != nil {
+		fmt.Println("Update domain failed", err)
+	} else if updated {
+		var message Message
+		wechatConfig := config.WechatConfig
+		message.ToUser = wechatConfig.ToUser
+		message.AgentID = wechatConfig.AgentID
+		message.MsgType = "text"
+		if time.Now().Unix() > tempConfig.ExpireAt {
+			wechatToken, err := Get_Token(&wechatConfig)
+			if err != nil {
+				fmt.Println("Get wechat token failed", err)
+			} else {
+				tempConfig.Token = wechatToken.Token
+				tempConfig.ExpireAt = time.Now().Unix() + wechatToken.ExpireAt
 
-	if time.Now().Unix() > tempConfig.ExpireAt {
-		wechatToken, err := Get_Token(config)
-		if err != nil {
-			fmt.Println("Get wechat token failed", err)
-			return
+				file.Truncate(0)
+				file.Seek(0, 0)
+				err = WriteTempConfig(file, tempConfig)
+				if err != nil {
+					fmt.Println("Write TempConfig failed", err)
+				}
+			}
 		}
-		configChanged = true
-		tempConfig.Token = wechatToken.Token
-		tempConfig.ExpireAt = time.Now().Unix() + wechatToken.ExpireAt
-	}
-
-	if tempConfig.LastIP != ipv6 {
-		configChanged = true
-		tempConfig.LastIP = ipv6
-		message.Text = Text{Content: "IP changed to " + ipv6}
-	}
-
-	if configChanged {
-		file.Truncate(0)
-		file.Seek(0, 0)
-		err = WriteTempConfig(file, tempConfig)
-		if err != nil {
-			fmt.Println("Write TempConfig failed", err)
-			return
+		message.Text = Text{
+			Content: "Update domain dns record success: " + ipv6,
 		}
-		err := SendMessage(tempConfig.Token, &message)
+		err = SendMessage(tempConfig.Token, &message)
 		if err != nil {
 			fmt.Println(err)
-		} else {
-			fmt.Println("IP address changed to " + ipv6)
 		}
-	} else {
-		fmt.Println("IP address has no change.")
 	}
 }
