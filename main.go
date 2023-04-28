@@ -15,6 +15,12 @@ func main() {
 	}
 
 	ipv6 := ipv6Addresses[0].IP.String()
+	for _, address := range ipv6Addresses {
+		if address.Mask[15] == 0xff {
+			ipv6 = address.IP.String()
+			break
+		}
+	}
 
 	configFileName := os.Args[1]
 	tempFileName := path.Dir(configFileName) + "/temp.yaml"
@@ -48,8 +54,9 @@ func main() {
 				}
 			}
 		}
+		var domain = config.AlidnsConfig.RR + "." + config.AlidnsConfig.Domain
 		message.Text = Text{
-			Content: "Update domain dns record success: " + ipv6,
+			Content: fmt.Sprintf("Successfully update domain %s dns record to %s", domain, ipv6),
 		}
 		err = SendMessage(tempConfig.Token, &message)
 		if err != nil {
