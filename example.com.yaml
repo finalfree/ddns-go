@@ -1,0 +1,13 @@
+wechat:
+  corp_id: "您的企业ID"
+  app_secret: "您的应用密钥"
+  agent_id: 12345
+  to_user: "指定的用户ID"
+
+alidns:
+  domain: "example.com"
+  record_id: "记录ID"
+  record_type: "A"
+  rr: "@"
+  access_key_id: "您的阿里云AccessKeyID"
+  access_secret: "您的阿里云AccessKeySecret"

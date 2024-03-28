@@ -1,4 +1,4 @@
-module ddns-ipv6
+module ddns-go
 
 go 1.22
 
